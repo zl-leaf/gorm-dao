@@ -78,6 +78,17 @@ func (d *{{.StructName}}Dao) Find() ([]*model.{{.Name}}, int64, error) {
 	return list, total, nil
 }
 
+func (d *{{.StructName}}Dao) Count() (int64, error) {
+	var total int64
+	var query = d.Model(model.{{.Name}}{})
+
+	if err := query.Count(&total).Error; err != nil {
+		return 0, err
+	}
+
+	return total, nil
+}
+
 func (d *{{.StructName}}Dao) First(conds ...interface{}) (*model.{{.Name}}, error) {
 	var record = &model.{{.Name}}{}
 	result := d.DB.First(record, conds...)
