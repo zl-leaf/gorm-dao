@@ -17,6 +17,7 @@ type QueryStruct struct {
 	StructName   string // 小写开头的Model名称
 	WhereFns     []*method.Method
 	OrderFns     []*method.Method
+	PreloadFns   []*method.Method
 }
 
 // ParseQueryStruct 解析Query对象
@@ -28,11 +29,19 @@ func ParseQueryStruct(QueryPkgName string, s *schema.Schema) (*QueryStruct, erro
 		StructName:   strings.ToLower(s.Name[:1]) + s.Name[1:],
 		WhereFns:     make([]*method.Method, 0, 10),
 		OrderFns:     make([]*method.Method, 0, 10),
+		PreloadFns:   make([]*method.Method, 0, 10),
 	}
 
 	for _, field := range s.Fields {
 		meta.WhereFns = append(meta.WhereFns, parseField2WhereFn(field)...)
 		meta.OrderFns = append(meta.OrderFns, parseField2OrderFn(field)...)
+	}
+
+	for _, relation := range s.Relationships.HasOne {
+		meta.PreloadFns = append(meta.PreloadFns, parseRelation2PreloadFn(relation)...)
+	}
+	for _, relation := range s.Relationships.HasMany {
+		meta.PreloadFns = append(meta.PreloadFns, parseRelation2PreloadFn(relation)...)
 	}
 
 	return meta, nil
@@ -67,4 +76,16 @@ func parseField2OrderFn(field *schema.Field) []*method.Method {
 	}
 	orderFns = append(orderFns, fn)
 	return orderFns
+}
+
+// parseRelation2PreloadFn 解析Preload方法
+func parseRelation2PreloadFn(relationship *schema.Relationship) []*method.Method {
+	fns := make([]*method.Method, 0, 1)
+
+	fn := &method.Method{
+		MethodName: fmt.Sprintf("Preload%s", relationship.Name),
+		Query:      relationship.Name,
+	}
+	fns = append(fns, fn)
+	return fns
 }

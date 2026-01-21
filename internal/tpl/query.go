@@ -16,7 +16,7 @@ func (d *{{.StructName}}Dao) WithContext(ctx context.Context) *{{.StructName}}Da
 	return &{{.StructName}}Dao{d.DB.WithContext(ctx)}
 }
 
-` + QueryMethodTpl + CRUDTpl
+` + QueryMethodTpl + RelationMethodTpl + CRUDTpl
 
 	QueryMethodTpl = `
 {{range .WhereFns -}}
@@ -55,6 +55,16 @@ func(d *{{.StructName}}Dao) Page(page, pageSize int) *{{.StructName}}Dao {
 	d.DB = d.DB.Limit(pageSize)
 	return d
 }
+`
+
+	RelationMethodTpl = `
+{{range .PreloadFns -}}
+func (d *{{$.StructName}}Dao) {{.MethodName}}(args ...interface{}) *{{$.StructName}}Dao {
+	d.DB = d.DB.Preload("{{.Query}}", args)
+	return d
+}
+{{end}}
+
 `
 
 	CRUDTpl = `
