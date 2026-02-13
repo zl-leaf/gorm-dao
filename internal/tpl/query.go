@@ -116,6 +116,10 @@ func (d *{{.StructName}}Dao) Save(record *model.{{.Name}}) error {
 	return d.DB.Save(record).Error
 }
 
+func (d *{{.StructName}}Dao) SaveFullAssociations(record *model.{{.Name}}) error {
+	return d.DB.Session(&gorm.Session{FullSaveAssociations: true}).Save(record).Error
+}
+
 func (d *{{.StructName}}Dao) Delete(conds ...interface{}) error {
 	return d.DB.Delete(&model.{{.Name}}{}, conds...).Error
 }
