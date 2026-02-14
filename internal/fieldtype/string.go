@@ -14,5 +14,9 @@ func NewStringField(field *schema.Field) *StringField {
 }
 
 func (f *StringField) GetWhereMethods() []*method.Method {
-	return []*method.Method{f.eq(), f.neq(), f.like(), f.prefixLike(), f.notLike(), f.in(), f.notIn()}
+	methods := []*method.Method{f.eq(), f.neq(), f.like(), f.prefixLike(), f.notLike(), f.in(), f.notIn()}
+	if f.isPointer() {
+		methods = append(methods, f.isNull(), f.isNotNull())
+	}
+	return methods
 }

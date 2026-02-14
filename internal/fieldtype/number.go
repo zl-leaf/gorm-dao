@@ -14,5 +14,9 @@ func NewNumberField(field *schema.Field) *NumberField {
 }
 
 func (f *NumberField) GetWhereMethods() []*method.Method {
-	return []*method.Method{f.eq(), f.neq(), f.in(), f.notIn(), f.lt(), f.lte(), f.gt(), f.gte(), f.between()}
+	methods := []*method.Method{f.eq(), f.neq(), f.in(), f.notIn(), f.lt(), f.lte(), f.gt(), f.gte(), f.between()}
+	if f.isPointer() {
+		methods = append(methods, f.isNull(), f.isNotNull())
+	}
+	return methods
 }
